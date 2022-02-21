@@ -158,7 +158,6 @@ lazy val webworker = project
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.0.0",
-      "org.scalameta" %%% "munit" % MUnitVersion % Test,
     ),
     (Test / test) := (Test / test).dependsOn(Compile / fastOptJS).value,
     buildInfoKeys := Seq(scalaVersion, baseDirectory, BuildInfoKey("isBrowser" -> useJSEnv.value.isBrowser)),

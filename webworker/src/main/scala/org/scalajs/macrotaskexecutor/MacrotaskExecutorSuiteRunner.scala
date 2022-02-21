@@ -16,12 +16,9 @@
 
 package org.scalajs.macrotaskexecutor
 
-import munit.MUnitRunner
-import org.junit.runner.Description
-import org.junit.runner.notification.Failure
-import org.junit.runner.notification.RunNotifier
 import org.scalajs.dom.DedicatedWorkerGlobalScope
 
+import scala.scalajs.concurrent.QueueExecutionContext.timeouts
 import scala.scalajs.js
 
 object MacrotaskExecutorSuiteRunner {
@@ -30,45 +27,22 @@ object MacrotaskExecutorSuiteRunner {
     DedicatedWorkerGlobalScope.self.postMessage(msg)
 
   def main(args: Array[String]): Unit = {
-    new MUnitRunner(
-      classOf[MacrotaskExecutorSuite],
-      () => new MacrotaskExecutorSuite
-    ).runAsync(new RunNotifier {
+    val suite = new MacrotaskExecutorSuite
 
-      var count = new MacrotaskExecutorSuite().munitTests().size
-      var overallSuccess = true
-      def reportTest(success: Boolean): Unit = {
-        overallSuccess &= success
-        count -= 1
-        if (count == 0) postMessage(overallSuccess)
+    DedicatedWorkerGlobalScope.self.onmessage = { e =>
+      e.data match {
+        case "sequence a series of 10,000 recursive executions without clamping" =>
+          suite.`sequence a series of 10,000 recursive executions without clamping`
+            .foreach(r => postMessage(r.isSuccess))(timeouts)
+        case "preserve fairness with setTimeout" =>
+          suite.`preserve fairness with setTimeout`
+            .foreach(r => postMessage(r.isSuccess))(timeouts)
+        case "execute a bunch of stuff in 'parallel' and ensure it all runs" =>
+          suite.`execute a bunch of stuff in 'parallel' and ensure it all runs`
+            .foreach(r => postMessage(r.isSuccess))(timeouts)
+        case _ => postMessage(false)
       }
-
-      def fireTestStarted(description: Description): Unit = ()
-
-      def fireTestSuiteStarted(description: Description): Unit =
-        postMessage(s"${classOf[MacrotaskExecutorSuite].getName}:")
-
-      // This doesn't account for async and fires before any tests are run!
-      def fireTestSuiteFinished(description: Description): Unit = ()
-
-      def fireTestIgnored(description: Description): Unit = ()
-
-      def fireTestFinished(description: Description): Unit = {
-        postMessage(s"  + ${description.getMethodName}")
-        reportTest(success = true)
-      }
-
-      def fireTestFailure(failure: Failure): Unit = {
-        postMessage(
-          s"==> X ${classOf[MacrotaskExecutorSuite].getName}.${failure.description.getMethodName}"
-        )
-        reportTest(success = false)
-      }
-
-      def fireTestAssumptionFailed(failure: Failure): Unit =
-        reportTest(success = false)
-
-    })
+    }
 
     ()
   }
