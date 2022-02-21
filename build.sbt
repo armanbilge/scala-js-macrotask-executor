@@ -136,8 +136,6 @@ ThisBuild / Test / jsEnv := {
   }
 }
 
-ThisBuild / Test / testOptions += Tests.Argument(MUnitFramework, "+l")
-
 // project structure
 
 lazy val root = project
@@ -148,9 +146,8 @@ lazy val core = project
   .in(file("core"))
   .settings(
     name := "scala-js-macrotask-executor",
-    libraryDependencies += "org.scalameta" %%% "munit" % MUnitVersion % Test,
   )
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, ScalaJSJUnitPlugin)
 
 // this project solely exists for testing purposes
 lazy val webworker = project
