@@ -17,6 +17,7 @@
 package org.scalajs.macrotaskexecutor
 
 import org.scalajs.dom.DedicatedWorkerGlobalScope
+import org.scalajs.dom.MessageEvent
 
 import scala.scalajs.concurrent.QueueExecutionContext.timeouts
 import scala.scalajs.js
@@ -29,17 +30,17 @@ object MacrotaskExecutorTestsRunner {
   def main(args: Array[String]): Unit = {
     val suite = new MacrotaskExecutorTests
 
-    DedicatedWorkerGlobalScope.self.onmessage = { e =>
+    DedicatedWorkerGlobalScope.self.onmessage = { (e: MessageEvent) =>
       e.data match {
         case "sequence a series of 10,000 recursive executions without clamping" =>
           suite.`sequence a series of 10,000 recursive executions without clamping`
-            .foreach(r => postMessage(r.isSuccess))(timeouts)
+            .foreach(r => postMessage(r.isSuccess))(timeouts())
         case "preserve fairness with setTimeout" =>
           suite.`preserve fairness with setTimeout`
-            .foreach(r => postMessage(r.isSuccess))(timeouts)
+            .foreach(r => postMessage(r.isSuccess))(timeouts())
         case "execute a bunch of stuff in 'parallel' and ensure it all runs" =>
           suite.`execute a bunch of stuff in 'parallel' and ensure it all runs`
-            .foreach(r => postMessage(r.isSuccess))(timeouts)
+            .foreach(r => postMessage(r.isSuccess))(timeouts())
         case _ => postMessage(false)
       }
     }

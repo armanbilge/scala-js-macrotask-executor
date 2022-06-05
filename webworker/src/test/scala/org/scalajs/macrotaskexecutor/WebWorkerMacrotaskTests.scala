@@ -22,8 +22,6 @@ import org.scalajs.dom.Worker
 
 import scala.concurrent.Future
 import scala.concurrent.Promise
-import scala.concurrent.duration._
-import scala.scalajs.js
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
