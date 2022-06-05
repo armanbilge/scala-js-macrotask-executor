@@ -23,9 +23,6 @@ import scala.scalajs.js
 
 object MacrotaskExecutorTestsRunner {
 
-  def postMessage(msg: js.Any): Unit =
-    DedicatedWorkerGlobalScope.self.postMessage(msg)
-
   def main(args: Array[String]): Unit = {
     val tests = new MacrotaskExecutorTests
 
@@ -35,11 +32,14 @@ object MacrotaskExecutorTestsRunner {
       clamping <- tests.`sequence a series of 10,000 recursive executions without clamping`
       fairness <- tests.`preserve fairness with setTimeout`
       parallel <- tests.`execute a bunch of stuff in 'parallel' and ensure it all runs`
-    } yield DedicatedWorkerGlobalScope.self.postMessage(js.Dictionary(
-      "clamping" -> clamping.isSuccess,
-      "fairness" -> fairness.isSuccess,
-      "parallel" -> parallel.isSuccess
-    ))
+      results = js.Dictionary(
+        "clamping" -> clamping.isSuccess,
+        "fairness" -> fairness.isSuccess,
+        "parallel" -> parallel.isSuccess
+      )
+    } yield { // send the results repeatedly
+      js.timers.setInterval(100)(DedicatedWorkerGlobalScope.self.postMessage(results))
+    }
 
     ()
   }
