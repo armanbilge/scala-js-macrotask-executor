@@ -29,7 +29,7 @@ import scala.util.Try
 class WebWorkerMacrotaskTests {
 
   val worker = new Worker(
-    s"file://${BuildInfo.workerDir}/main.js"
+    s"file:///${BuildInfo.workerDir}/main.js"
   )
 
   def runTest(name: String): Future[Try[Unit]] = {
