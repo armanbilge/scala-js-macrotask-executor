@@ -24,8 +24,7 @@ import org.scalajs.jsenv.selenium.SeleniumJSEnv
 
 import java.util.concurrent.TimeUnit
 
-val MUnitFramework = new TestFramework("munit.Framework")
-val MUnitVersion = "0.7.29"
+ThisBuild / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-s")
 
 ThisBuild / baseVersion := "1.0"
 
