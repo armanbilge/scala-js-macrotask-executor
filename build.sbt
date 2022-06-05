@@ -176,4 +176,4 @@ lazy val webworker = project
     ),
     buildInfoPackage := "org.scalajs.macrotaskexecutor",
   )
-  .enablePlugins(ScalaJSPlugin, BuildInfoPlugin, NoPublishPlugin)
+  .enablePlugins(ScalaJSPlugin, ScalaJSJUnitPlugin, BuildInfoPlugin, NoPublishPlugin)
