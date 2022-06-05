@@ -28,7 +28,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-class WebWorkerMacrotaskSuite {
+class WebWorkerMacrotaskTests {
 
   val worker = new Worker(
     s"file://${BuildInfo.workerDir}/main.js"

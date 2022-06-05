@@ -21,13 +21,13 @@ import org.scalajs.dom.DedicatedWorkerGlobalScope
 import scala.scalajs.concurrent.QueueExecutionContext.timeouts
 import scala.scalajs.js
 
-object MacrotaskExecutorSuiteRunner {
+object MacrotaskExecutorTestsRunner {
 
   def postMessage(msg: js.Any): Unit =
     DedicatedWorkerGlobalScope.self.postMessage(msg)
 
   def main(args: Array[String]): Unit = {
-    val suite = new MacrotaskExecutorSuite
+    val suite = new MacrotaskExecutorTests
 
     DedicatedWorkerGlobalScope.self.onmessage = { e =>
       e.data match {

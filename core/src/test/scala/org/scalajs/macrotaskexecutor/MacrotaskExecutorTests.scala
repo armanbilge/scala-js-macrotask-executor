@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.scalajs.js
 import scala.util.Try
 
-class MacrotaskExecutorSuite {
+class MacrotaskExecutorTests {
   import MacrotaskExecutor.Implicits._
 
   @Test
