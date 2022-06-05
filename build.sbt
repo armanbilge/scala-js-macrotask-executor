@@ -159,7 +159,21 @@ lazy val webworker = project
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "2.0.0",
     ),
-    (Test / test) := (Test / test).dependsOn(Compile / fastOptJS).value,
-    buildInfoKeys := Seq(scalaVersion, baseDirectory, BuildInfoKey("isBrowser" -> useJSEnv.value.isBrowser)),
-    buildInfoPackage := "org.scalajs.macrotaskexecutor")
+    (Test / test) := {
+      if (useJSEnv.value.isBrowser)
+        (Test / test).dependsOn(Compile / fastOptJS).value
+      else
+        ()
+    },
+    buildInfoKeys := Seq(
+      BuildInfoKey(
+        "workerDir" -> {
+          val outputDir = (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+          val baseDir = (ThisBuild / baseDirectory).value
+          outputDir.relativeTo(baseDir).get.toString
+        }
+      )
+    ),
+    buildInfoPackage := "org.scalajs.macrotaskexecutor",
+  )
   .enablePlugins(ScalaJSPlugin, BuildInfoPlugin, NoPublishPlugin)

@@ -16,42 +16,46 @@
 
 package org.scalajs.macrotaskexecutor
 
-import munit.FunSuite
+import org.junit.Test
 import org.scalajs.dom.MessageEvent
 import org.scalajs.dom.Worker
 
+import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration._
+import scala.scalajs.js
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-class WebWorkerMacrotaskSuite extends FunSuite {
+class WebWorkerMacrotaskSuite {
 
-  import MacrotaskExecutor.Implicits._
+  val worker = new Worker(
+    s"file://${BuildInfo.workerDir}/main.js"
+  )
 
-  def scalaVersion = if (BuildInfo.scalaVersion.startsWith("2"))
-    BuildInfo.scalaVersion.split('.').init.mkString(".")
-  else
-    BuildInfo.scalaVersion
-
-  def targetDir = s"${BuildInfo.baseDirectory}/target/scala-${scalaVersion}"
-
-  override def munitIgnore = !BuildInfo.isBrowser
-
-  test("pass the MacrotaskSuite in a web worker") {
-    val p = Promise[Boolean]()
-
-    val worker = new Worker(
-      s"file://${targetDir}/scala-js-macrotask-executor-webworker-fastopt/main.js"
-    )
-
+  def runTest(name: String): Future[Try[Unit]] = {
+    val p = Promise[Try[Unit]]()
     worker.onmessage = { (event: MessageEvent) =>
       event.data match {
-        case log: String      => println(log)
-        case success: Boolean => p.success(success)
-        case _                => ()
+        case true => p.success(Success(()))
+        case _ => p.success(Failure(new AssertionError))
       }
     }
-
-    p.future.map(assert(_))
-
+    worker.postMessage(name)
+    p.future
   }
+
+  @Test
+  def `sequence a series of 10,000 recursive executions without clamping` =
+    runTest("sequence a series of 10,000 recursive executions without clamping")
+
+  @Test
+  def `preserve fairness with setTimeout` =
+    runTest("preserve fairness with setTimeout")
+
+  @Test
+  def `execute a bunch of stuff in 'parallel' and ensure it all runs` =
+    runTest("execute a bunch of stuff in 'parallel' and ensure it all runs")
 
 }
