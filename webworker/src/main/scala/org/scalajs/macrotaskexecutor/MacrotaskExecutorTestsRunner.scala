@@ -17,11 +17,9 @@
 package org.scalajs.macrotaskexecutor
 
 import org.scalajs.dom.DedicatedWorkerGlobalScope
-import org.scalajs.dom.MessageEvent
 
 import scala.scalajs.concurrent.QueueExecutionContext.timeouts
 import scala.scalajs.js
-import scala.concurrent.Future
 
 object MacrotaskExecutorTestsRunner {
 
