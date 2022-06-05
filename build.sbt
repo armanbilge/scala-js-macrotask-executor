@@ -168,8 +168,7 @@ lazy val webworker = project
       BuildInfoKey(
         "workerDir" -> {
           val outputDir = (Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
-          val baseDir = (ThisBuild / baseDirectory).value
-          outputDir.relativeTo(baseDir).get.toString
+          outputDir.getAbsolutePath()
         }
       )
     ),

@@ -33,9 +33,7 @@ class WebWorkerMacrotaskTests {
 
   implicit val ec: ExecutionContext = timeouts()
 
-  val worker = new Worker(
-    s"file:///${BuildInfo.workerDir}/main.js"
-  )
+  val worker = new Worker(s"file://${BuildInfo.workerDir}/main.js")
 
   val testsResult = Promise[js.Dictionary[Boolean]]()
   worker.onmessage = { (event: MessageEvent) =>
