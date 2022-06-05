@@ -21,6 +21,7 @@ import org.scalajs.dom.MessageEvent
 
 import scala.scalajs.concurrent.QueueExecutionContext.timeouts
 import scala.scalajs.js
+import scala.concurrent.Future
 
 object MacrotaskExecutorTestsRunner {
 
@@ -28,22 +29,19 @@ object MacrotaskExecutorTestsRunner {
     DedicatedWorkerGlobalScope.self.postMessage(msg)
 
   def main(args: Array[String]): Unit = {
-    val suite = new MacrotaskExecutorTests
+    val tests = new MacrotaskExecutorTests
 
-    DedicatedWorkerGlobalScope.self.onmessage = { (e: MessageEvent) =>
-      e.data match {
-        case "sequence a series of 10,000 recursive executions without clamping" =>
-          suite.`sequence a series of 10,000 recursive executions without clamping`
-            .foreach(r => postMessage(r.isSuccess))(timeouts())
-        case "preserve fairness with setTimeout" =>
-          suite.`preserve fairness with setTimeout`
-            .foreach(r => postMessage(r.isSuccess))(timeouts())
-        case "execute a bunch of stuff in 'parallel' and ensure it all runs" =>
-          suite.`execute a bunch of stuff in 'parallel' and ensure it all runs`
-            .foreach(r => postMessage(r.isSuccess))(timeouts())
-        case _ => postMessage(false)
-      }
-    }
+    implicit val ec = timeouts()
+
+    for {
+      clamping <- tests.`sequence a series of 10,000 recursive executions without clamping`
+      fairness <- tests.`preserve fairness with setTimeout`
+      parallel <- tests.`execute a bunch of stuff in 'parallel' and ensure it all runs`
+    } yield DedicatedWorkerGlobalScope.self.postMessage(js.Dictionary(
+      "clamping" -> clamping.isSuccess,
+      "fairness" -> fairness.isSuccess,
+      "parallel" -> parallel.isSuccess
+    ))
 
     ()
   }
